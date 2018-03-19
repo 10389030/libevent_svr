@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 #include <glog/logging.h>
-#include "toolkit/network/nettool.h"
+#include "toolkit/nettool.h"
 
 using namespace std;
 
@@ -37,7 +37,7 @@ void client_read_callback(struct bufferevent* bev, void* arg) {
 
     evbuffer_add_printf(rsp_buf, "HTTP/1.1 200 OK\r\n");
     evbuffer_add_printf(rsp_buf, "Content-Type: text/plain\r\n");
-    evbuffer_add_printf(rsp_buf, "Content-Length: %d\r\n", strlen(buf));
+    evbuffer_add_printf(rsp_buf, "Content-Length: %ld\r\n", strlen(buf));
     evbuffer_add_printf(rsp_buf, "\r\n");
     evbuffer_add_printf(rsp_buf, "%s", buf);
 
@@ -86,12 +86,14 @@ int main(int argc, const char* argv[]) {
 	}
 	
 	struct sockaddr_in listen_addr;
-	bzero(&listen_addr, sizeof(listen_addr));
+    socklen_t socklen = sizeof(sockaddr_in);
+	bzero(&listen_addr, socklen);
     listen_addr.sin_family = AF_INET;
     listen_addr.sin_port = htons(80);
     listen_addr.sin_addr.s_addr = INADDR_ANY;
 
-    int bind_ret = bind(listen_fd, (struct sockaddr*)&listen_addr, sizeof(listen_addr));
+    // conflict with std::bind
+    int bind_ret = ::bind(listen_fd, (struct sockaddr*)&listen_addr, socklen);
     if (bind_ret < 0) {
         LOG(ERROR) << strerror(errno);
     }
