@@ -10,6 +10,7 @@ target_link_libraries(test_all protocal)
 target_link_libraries(test_all event)
 target_link_libraries(test_all glog)
 target_link_libraries(test_all gtest)
+target_link_libraries(test_all pthread)
 
 
 
